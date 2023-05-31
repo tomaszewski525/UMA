@@ -42,6 +42,8 @@ class Bus_environment:
     current_time = ""
 
     running = False
+    init_pygame_once = False
+
 
     def get_actions(self):
         return self.GRID_WIDTH, self.GRID_HEIGHT
@@ -61,7 +63,7 @@ class Bus_environment:
         self.green_square_points = {}
         self.player_points = 0
         self.player_position = [0, 0]
-
+        self.new_position = [0, 0]
         # Game Time ticks
         self.turn = 0
         self.point_interval = 0
@@ -99,9 +101,8 @@ class Bus_environment:
         self.red_squares, self.player_position = resource.read_map_info(map_info)
         self.green_squares, self.green_square_points = resource.read_bus_schedule(bush_schedule)
 
-    init_pygame_once = False
     def visualize(self):
-        running = True
+        self.running = True
         if not self.init_pygame_once:
             # Initialize Pygame
             pygame.init()
@@ -164,45 +165,67 @@ class Bus_environment:
             # Quit the game
             pygame.quit()
 
-    def manual_steering(self):
+    def manual_run(self):
+        self.running = True
+        self.visualize(self)
+        while(self.running):
 
+            self.manual_steering(self)
+            self.visualize(self)
+            self.elapsed_time = self.turn * self.turn_time
+            self.hours = self.start_time + self.elapsed_time // 60
+            self.minutes = (self.elapsed_time % 60)
+            self.current_time = f"{self.hours:02d}:{self.minutes:02d}"
+
+            # calculate which point interval should be visible
+            self.point_interval = self.elapsed_time // self.point_interval_time
+
+            if self.hours == self.finish_time:
+                self.isFinished = True
+                # Quit the game
+                pygame.quit()
+
+            # Limit the frame rate
+            pygame.time.Clock().tick(30)
+
+    def manual_steering(self):
         # Handle events
         for event in pygame.event.get():
             # Quit env
             if event.type == pygame.QUIT:
-                running = False
+                self.running = False
             elif event.type == pygame.KEYDOWN:
 
                 # move up one square
                 if event.key == pygame.K_UP:
-                    new_position = [self.player_position[0], max(self.player_position[1] - 1, 0)]
+                    self.new_position = [self.player_position[0], max(self.player_position[1] - 1, 0)]
 
-                    if new_position not in self.red_squares:
-                        self.player_position = new_position
-                        self.manual_check_reward(new_position)
+                    if self.new_position not in self.red_squares:
+                        self.player_position = self.new_position
+                        self.manual_check_reward(self, self.new_position)
 
                 # move down one square
                 elif event.key == pygame.K_DOWN:
-                    new_position = [self.player_position[0], min(self.player_position[1] + 1, self.GRID_HEIGHT - 1)]
-                    if new_position not in self.red_squares:
-                        self.player_position = new_position
-                        self.manual_check_reward(new_position)
+                    self.new_position = [self.player_position[0], min(self.player_position[1] + 1, self.GRID_HEIGHT - 1)]
+                    if self.new_position not in self.red_squares:
+                        self.player_position = self.new_position
+                        self.manual_check_reward(self, self.new_position)
 
                 elif event.key == pygame.K_LEFT:
-                    new_position = [max(self.player_position[0] - 1, 0), self.player_position[1]]
-                    if new_position not in self.red_squares:
-                        self.player_position = new_position
-                        self.manual_check_reward(new_position)
+                    self.new_position = [max(self.player_position[0] - 1, 0), self.player_position[1]]
+                    if self.new_position not in self.red_squares:
+                        self.player_position = self.new_position
+                        self.manual_check_reward(self, self.new_position)
 
                 elif event.key == pygame.K_RIGHT:
-                    new_position = [min(self.player_position[0] + 1, self.GRID_WIDTH - 1), self.player_position[1]]
-                    if new_position not in self.red_squares:
-                        self.player_position = new_position
-                        self.manual_check_reward(new_position)
+                    self.new_position = [min(self.player_position[0] + 1, self.GRID_WIDTH - 1), self.player_position[1]]
+                    if self.new_position not in self.red_squares:
+                        self.player_position = self.new_position
+                        self.manual_check_reward(self, self.new_position)
 
             elif event.type == pygame.KEYUP:
                 if event.key in [pygame.K_UP, pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN]:
-                    if new_position not in self.red_squares:
+                    if self.new_position not in self.red_squares:
                         self.turn += 1
 
 
