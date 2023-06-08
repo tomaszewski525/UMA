@@ -1,4 +1,6 @@
 import pygame, random
+import os
+
 
 class MapCreator:
     WINDOW_WIDTH = 500
@@ -15,10 +17,15 @@ class MapCreator:
     green_squares = []
     red_squares = []
     bus_start = []
+    bus_schedule_path = ''
+    map_info_path = ''
 
-    def __init__(self):
+    def __init__(self, new_directory, bus_schedule_path, map_info_path):
         self.grid = [[self.BLACK for _ in range(self.GRID_WIDTH)] for _ in range(self.GRID_HEIGHT)]
         self.running = False
+        self.map_info_path = map_info_path
+        self.bus_schedule_path = bus_schedule_path
+        os.makedirs(new_directory, exist_ok=True)
 
     def run(self):
         pygame.init()
@@ -84,7 +91,7 @@ class MapCreator:
             self.grid[row][col] = self.BLACK
 
     def save_bus_schedule(self):
-        filename = "bus_schedule_2.txt"
+        filename = self.bus_schedule_path
         with open(filename, "w") as file:
             line = f"id,cords,people_num\n"
             file.write(line)
@@ -95,7 +102,7 @@ class MapCreator:
                 file.write(line)
 
     def save_map_info(self):
-        filename = "map_info_2.txt"
+        filename = self.map_info_path
         with open(filename, "w") as file:
             line = f"road_blockades,bus_start_position\n"
             file.write(line)
@@ -106,5 +113,5 @@ class MapCreator:
 
 
 # Create and run the map creator
-map_creator = MapCreator()
+map_creator = MapCreator("Maps/3", 'Maps/3/bus_schedule.txt', 'Maps/3/map_info.txt')
 map_creator.run()

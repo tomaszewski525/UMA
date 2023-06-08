@@ -1,6 +1,7 @@
 import numpy as np
 import Environment
 import random
+import os
 import time
 
 ################# Q LEARNING FUNCTIONS #################
@@ -45,13 +46,22 @@ def update_q_table(state, action, next_state, reward, point_interval, bus_stops_
     q_table[point_interval, bus_stops_state, state[0], state[1], action] = (1 - alpha) * q_value + alpha * (reward + gamma * max_q_value)
 
 ######################################################
+# SETTINGS
+save_q_table = True
+use_q_table = True  # use trained q table
+env_number = 2
+os.makedirs(f"Q_Tables/{env_number}", exist_ok=True) # Create save directory
+save_file_path = f"Q_Tables/{env_number}/q_table.txt" # where  to save q table
+trained_q_table_path = f"Q_Tables/{env_number}/q_table_Trained.txt" # trained q table path
+bus_schedule_path = f"Maps/{env_number}/bus_schedule.txt"  # bus schedule
+map_info_path = f"Maps/{env_number}/map_info.txt"  # map info
 
 # Init environment
 env = Environment.Bus_environment
 
 # Get size of environment
 env_width, env_height = env.get_actions(env)
-env.initialize(env, 'bus_schedule.txt', 'map_info.txt')
+env.initialize(env, bus_schedule_path, map_info_path)
 
 # number of different combinations of people on bus stop, 6 start time, 22 end time, after each 30 minutes number
 # of people on bus stop change
@@ -60,22 +70,14 @@ max_combinations = env.get_max_combinations(env)
 # Q-learning parameters
 alpha = 0.8  # Learning rate
 gamma = 0.5  # Discount factor
-epsilon = 0.0  # Exploration rate, if epsilon 0 only values from q table, if 1 only exploration
-max_iterations = 100000 # number of whole training epochs, one epoch is whole environment cycle
+epsilon = 1.0  # Exploration rate, if epsilon 0 only values from q table, if 1 only exploration
+max_iterations = 10000 # number of whole training epochs, one epoch is whole environment cycle
 
-"""
-[9, 2] 1
-[2, 5] 2
-[4, 7] 3
-[6, 9] 4
-[2, 1] 5
-"""
+# All bus stops states, list length equals to bus stops number
+env_stops_state = [0 for _ in range(len(env.green_squares))]
 
-# All bus stops states, list lenght equals to bus stops number
-env_stops_state = [0, 0, 0, 0, 0]
-
-# Init q_table, 32 = number of diffrent stops states 2^5
-q_table = init_q_table(True, (max_combinations, 32, env_width, env_height, 4), "q_table_Trained.txt")
+# Init q_table, 32 = number of different stops states 2^5
+q_table = init_q_table(use_q_table, (max_combinations, 2**len(env_stops_state), env_width, env_height, 4), trained_q_table_path)
 
 
 # Q-learning training
@@ -100,8 +102,6 @@ while iterations < max_iterations and not env.is_finished(env):
     elif action == 3:  # Right
         new_position = [min(player_position[0] + 1, env_width - 1), player_position[1]]
 
-
-
     bus_stops_state = int(''.join(map(str, env_stops_state)), 2)
 
     # Calculate the reward
@@ -118,20 +118,20 @@ while iterations < max_iterations and not env.is_finished(env):
     # Update environment
     env.update_env(env)
     if env.point_interval != last_point_interval:
-        env_stops_state = [0, 0, 0, 0, 0]
+        env_stops_state = [0 for _ in range(len(env.green_squares))]
     last_point_interval = env.point_interval
 
-    if(env.isFinished):
+    if env.isFinished:
         iterations += 1
         print(iterations)
         print(env.player_points)
         if iterations > max_iterations:
             epsilon = 0
-        env.initialize(env, 'bus_schedule.txt', 'map_info.txt')
+        env.initialize(env, bus_schedule_path, map_info_path)
 
     # Save trained q table
     if iterations > max_iterations-1:
-        np.savetxt('q_table.txt', q_table.reshape(max_combinations, -1))
+        np.savetxt(save_file_path, q_table.reshape(max_combinations, -1))
 
     # Viusalize q_table, if you want to have faster training comment out
     #time.sleep(0.1)

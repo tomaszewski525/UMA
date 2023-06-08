@@ -2,7 +2,7 @@ import Environment
 
 game = Environment.Bus_environment
 
-game.initialize(game, 'bus_schedule_2.txt','map_info_2.txt')
+game.initialize(game, 'Maps/2/bus_schedule.txt','Maps/2/map_info.txt')
 
 game.manual_run(game)
 
