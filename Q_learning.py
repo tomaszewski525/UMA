@@ -131,7 +131,7 @@ while iterations < max_iterations and not env.is_finished(env):
 
     # Save trained q table
     if iterations > max_iterations-1:
-        np.savetxt('q_table_Trained.txt', q_table.reshape(max_combinations, -1))
+        np.savetxt('q_table.txt', q_table.reshape(max_combinations, -1))
 
     # Viusalize q_table, if you want to have faster training comment out
     #time.sleep(0.1)
