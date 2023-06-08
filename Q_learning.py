@@ -95,7 +95,7 @@ def goal_function(env, t_epsilon):
 
     return env.player_points
 
-def plot_goal_values(goal_values, alpha, gamma):
+def plot_goal_values(goal_values, alphas, epsilons, gamma):
     # Generate x-axis values (iteration numbers)
     x = range(1, len(goal_values) + 1)
 
@@ -109,12 +109,27 @@ def plot_goal_values(goal_values, alpha, gamma):
     # Plot the best line of fit
     plt.plot(x, line, color='red', label="Best Fit Line")
 
+
     # Set the plot title and labels
-    plt.title(f"Badanie, alpha={alpha} gamma={gamma}")
+    plt.title(f"Badanie, gamma={gamma}")
     plt.xlabel("Numer generacji")
     plt.ylabel("Wartości funkcji celu")
 
     # Display the plot
+    plt.show()
+
+    plt.plot(x, alphas)
+    # Set the plot title and labels
+    plt.title(f"Wartości alpha")
+    plt.xlabel("Numer generacji")
+    plt.ylabel("alpha")
+    plt.show()
+
+    plt.plot(x, epsilons)
+    # Set the plot title and labels
+    plt.title(f"Wartości epsilon")
+    plt.xlabel("Numer generacji")
+    plt.ylabel("epsilon")
     plt.show()
 
 ######################################################
@@ -140,10 +155,14 @@ env.initialize(env, bus_schedule_path, map_info_path)
 max_combinations = env.get_max_combinations(env)
 
 # Q-learning parameters
-alpha = 0.9  # Learning rate
+alpha = 1.0  # Learning rate
 gamma = 0.5  # Discount factor
 epsilon = 1.0  # Exploration rate, if epsilon 0 only values from q table, if 1 only exploration
-max_iterations = 1000 # number of whole training epochs, one epoch is whole environment cycle
+max_iterations = 10000  # number of whole training epochs, one epoch is whole environment cycle
+
+# Test hiperparameters
+alphas = []
+epsilons = []
 
 # All bus stops states, list length equals to bus stops number
 env_stops_state = [0 for _ in range(len(env.green_squares))]
@@ -198,7 +217,12 @@ while iterations < max_iterations and not env.is_finished(env):
 
     # Finished env iteration
     if env.isFinished:
+        alphas.append(alpha)
+        epsilons.append(epsilon)
         iterations += 1
+        #if iterations%10 == 0:
+        #    alpha = alpha - 0.05
+         #   epsilon = epsilon - 0.05
         #print(env.player_points)
         #temp_epsilon = epsilon
         #epsilon = 0
@@ -217,6 +241,6 @@ while iterations < max_iterations and not env.is_finished(env):
     #time.sleep(0.1)
     #env.visualize(env)
 
-plot_goal_values(goal_values, alpha, gamma)
+plot_goal_values(goal_values, alphas, epsilons, gamma)
 print(q_table)
 
