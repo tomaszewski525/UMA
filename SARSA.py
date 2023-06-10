@@ -6,16 +6,16 @@ import matplotlib.pyplot as plt
 from scipy import stats
 import time
 
-################# Q LEARNING FUNCTIONS #################
+################# SARSA FUNCTIONS #################
 
 def init_q_table(loadFromTextFile, size, q_table_file):
     """
-    This function initilize q_table
+    This function initializes the Q-table.
 
     Parameters:
-    loadFromTextFile (bool): if True than load q_table from file, else init with zeros;
-    size (4 parametres tuple): shape of q_table in numpy;
-    q_table_file (string): file name;
+    loadFromTextFile (bool): If True, load the Q-table from a file. If False, initialize with zeros.
+    size (4-parameter tuple): Shape of the Q-table in numpy.
+    q_table_file (string): File name.
 
     Returns:
     Q_table
@@ -28,30 +28,29 @@ def init_q_table(loadFromTextFile, size, q_table_file):
 
 def choose_action(point_interval, state, bus_stops_state, t_epsilon):
     """
-    This is function choose q_table action based on point interval and state
+    This function chooses an action from the Q-table based on the current state and epsilon-greedy strategy.
 
     Returns:
     action (int, 0-3)
     """
-
     if random.uniform(0, 1) < t_epsilon:
         return random.randint(0, 3)  # Random action
     else:
         return np.argmax(q_table[point_interval, bus_stops_state, state[0], state[1]])  # Greedy action
 
 
-def update_q_table(state, action, next_state, reward, point_interval, bus_stops_state):
+def update_q_table(state, action, next_state, next_action, reward, point_interval, bus_stops_state):
     """
-    This is function updates q_table based on current state, action, next state, reward, and point interval
+    This function updates the Q-table based on the current state, action, next state, next action, reward, and point interval.
     """
     q_value = q_table[point_interval, bus_stops_state, state[0], state[1], action]
-    max_q_value = np.max(q_table[point_interval, bus_stops_state, next_state[0], next_state[1]])
-    q_table[point_interval, bus_stops_state, state[0], state[1], action] = (1 - alpha) * q_value + alpha * (reward + gamma * max_q_value)
+    q_next_value = q_table[point_interval, bus_stops_state, next_state[0], next_state[1], next_action]
+    q_table[point_interval, bus_stops_state, state[0], state[1], action] = (1 - alpha) * q_value + alpha * (reward + gamma * q_next_value)
 
 
 def evaluation(env, t_epsilon):
     """
-    Evaluate q table
+    Calculate q table value
     """
     # All bus stops states, list length equals to bus stops number
     env_stops_state = [0 for _ in range(len(env.green_squares))]
@@ -78,8 +77,13 @@ def evaluation(env, t_epsilon):
 
         # Calculate the reward
         reward = env.get_reward(env, new_position)
+
+        # Get next action
+        next_action = choose_action(env.point_interval, new_position, bus_stops_state, t_epsilon)
+
         # Update the Q-table
-        update_q_table(player_position, action, new_position, reward, env.point_interval, bus_stops_state)
+        update_q_table(player_position, action, new_position, next_action, reward, env.point_interval, bus_stops_state)
+
         # Update the player position
         env.player_position = new_position
 
@@ -134,7 +138,6 @@ def plot_goal_values(goal_values, alphas, epsilons, gamma):
 
 ######################################################
 # SETTINGS
-visualize = False
 save_q_table = False
 use_q_table = False  # use trained q table
 env_number = 1
@@ -155,13 +158,13 @@ env.initialize(env, bus_schedule_path, map_info_path)
 # of people on bus stop change
 max_combinations = env.get_max_combinations(env)
 
-# Q-learning parameters
+# SARSA parameters
 alpha = 1.0  # Learning rate
 gamma = 0.5  # Discount factor
 epsilon = 1.0  # Exploration rate, if epsilon 0 only values from q table, if 1 only exploration
 max_iterations = 1000  # number of whole training epochs, one epoch is whole environment cycle
 
-# Changing hiperparametersa
+# Changing hyperparameters
 alpha_rate_of_decay = 0.05
 alpha_decay_time = 200
 epsilon_rate_of_decay = 0.05
@@ -176,7 +179,7 @@ env_stops_state = [0 for _ in range(len(env.green_squares))]
 q_table = init_q_table(use_q_table, (max_combinations, 2**len(env_stops_state), env_width, env_height, 4), trained_q_table_path)
 
 
-# Q-learning training
+# SARSA training
 iterations = 0
 last_point_interval = 0
 
@@ -205,8 +208,13 @@ while iterations < max_iterations and not env.is_finished(env):
 
     # Calculate the reward
     reward = env.get_reward(env, new_position)
+
+    # Get next action
+    next_action = choose_action(env.point_interval, new_position, bus_stops_state, epsilon)
+
     # Update the Q-table
-    update_q_table(player_position, action, new_position, reward, env.point_interval, bus_stops_state)
+    update_q_table(player_position, action, new_position, next_action, reward, env.point_interval, bus_stops_state)
+
     # Update the player position
     env.player_position = new_position
 
@@ -227,29 +235,30 @@ while iterations < max_iterations and not env.is_finished(env):
         epsilons.append(epsilon)
         iterations += 1
 
-        # Tune hiperparameters
+        # Tune hyperparameters
         if iterations % alpha_decay_time == 0:
              alpha = alpha - alpha_rate_of_decay
         if iterations % epsilon_decay_time == 0:
             epsilon = epsilon - epsilon_rate_of_decay
 
-
         env.initialize(env, bus_schedule_path, map_info_path)
         value = evaluation(env, 0)
         scores.append(value)
         print(f"Iteration: {iterations}, Q TABLE VALUE: {value}")
-        #epsilon = temp_epsilon
+
         env.initialize(env, bus_schedule_path, map_info_path)
 
     # Save trained q table
     if iterations > max_iterations-1 and save_q_table:
         np.savetxt(save_file_path, q_table.reshape(max_combinations, -1))
 
-    # Viusalize q_table, if you want to have faster training comment out
-    if visualize:
-        time.sleep(0.1)
-        env.visualize(env)
+    # Visualize q_table, if you want to have faster training comment out
+    #time.sleep(0.1)
+    #os.system('clear') # for linux and mac
+    #os.system('cls') # for windows
+    #for q_table_view in q_table:
+    #    print(q_table_view)
 
+
+# Plot the goal values and hyperparameter values
 plot_goal_values(scores, alphas, epsilons, gamma)
-#print(q_table)
-

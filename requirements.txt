@@ -2,3 +2,5 @@ pygame
 numpy
 matplotlib
 scipy
+keras
+tensorflow
