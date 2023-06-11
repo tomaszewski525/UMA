@@ -11,3 +11,6 @@ remember to add bus start position by clicking right mouse button. Press enter t
 
 If you want to train environment using Q learning run Q_learning.py, remember to choose correct settings
 ![image](https://github.com/tomaszewski525/UMA/assets/75726290/b9e16ddb-0550-4cec-80f5-c35fccaf22c7)
+
+also remember to set q learning parameters:
+![image](https://github.com/tomaszewski525/UMA/assets/75726290/5a41d307-5ec8-4332-b87b-c4d01a0d5df1)
