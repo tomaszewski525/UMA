@@ -107,7 +107,7 @@ class Bus_environment:
             # Initialize Pygame
             pygame.init()
             window = pygame.display.set_mode((self.WINDOW_WIDTH, self.WINDOW_HEIGHT))
-            pygame.display.set_caption("Grid Example")
+            pygame.display.set_caption("Bus environment")
             font = pygame.font.Font(None, self.FONT_SIZE)
         # Fill the window with black
         window.fill(self.BLACK)
@@ -168,7 +168,7 @@ class Bus_environment:
     def manual_run(self):
         self.running = True
         self.visualize(self)
-        while(self.running):
+        while self.running:
 
             self.manual_steering(self)
             self.visualize(self)

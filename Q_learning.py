@@ -134,13 +134,13 @@ def plot_goal_values(goal_values, alphas, epsilons, gamma):
 
 ######################################################
 # SETTINGS
-visualize = False
-save_q_table = False
-use_q_table = False  # use trained q table
-env_number = 1
+visualize = True
+save_q_table = True
+use_q_table = True  # use trained q table
+env_number = 5
 os.makedirs(f"Q_Tables/{env_number}", exist_ok=True) # Create save directory
 save_file_path = f"Q_Tables/{env_number}/q_table.txt" # where  to save q table
-trained_q_table_path = f"Q_Tables/{env_number}/q_table_Trained.txt" # trained q table path
+trained_q_table_path = f"Q_Tables/{env_number}/q_table.txt" # trained q table path
 bus_schedule_path = f"Maps/{env_number}/bus_schedule.txt"  # bus schedule
 map_info_path = f"Maps/{env_number}/map_info.txt"  # map info
 
@@ -157,15 +157,15 @@ max_combinations = env.get_max_combinations(env)
 
 # Q-learning parameters
 alpha = 1.0  # Learning rate
-gamma = 0.5  # Discount factor
-epsilon = 1.0  # Exploration rate, if epsilon 0 only values from q table, if 1 only exploration
-max_iterations = 1000  # number of whole training epochs, one epoch is whole environment cycle
+gamma = 0.7  # Discount factor
+epsilon = 0.0  # Exploration rate, if epsilon 0 only values from q table, if 1 only exploration
+max_iterations = 20000  # number of whole training epochs, one epoch is whole environment cycle
 
 # Changing hiperparametersa
-alpha_rate_of_decay = 0.05
+alpha_rate_of_decay = 0.01
 alpha_decay_time = 200
-epsilon_rate_of_decay = 0.05
-epsilon_decay_time = 100
+epsilon_rate_of_decay = 0.005
+epsilon_decay_time = 200
 alphas = []
 epsilons = []
 
