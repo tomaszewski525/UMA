@@ -1,6 +1,9 @@
 This is a project made for subject called machine learning on Warsaw Polytechnic.
+
 How to run project?
+
 If you want to check environment run Game.py.
+
 If you want to create new map run MapCreator.py, click left mouse click to choose bus stop, if you want to add road blockade click left mouse on bus stop, 
 remember to add bus start position by clicking right mouse button. Press enter to create map. Remember to choose correct folder:
 
