@@ -18,3 +18,6 @@ If you want to train environment using Q learning run Q_learning.py, remember to
 also remember to set q learning parameters:
 ![image](https://github.com/tomaszewski525/UMA/assets/75726290/5a41d307-5ec8-4332-b87b-c4d01a0d5df1)
 
+If you want to run already trained environment choose this settings, and run Q_learning.py:
+![image](https://github.com/tomaszewski525/UMA/assets/75726290/801637d2-9917-4e70-99e9-f942c3da7833)
+
