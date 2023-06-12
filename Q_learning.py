@@ -95,7 +95,7 @@ def evaluation(env, t_epsilon):
 
     return env.player_points
 
-def plot_goal_values(goal_values, alphas, epsilons, gamma):
+def plot_goal_values(goal_values, alphas, epsilons, gamma, i):
     # Generate x-axis values (iteration numbers)
     x = range(1, len(goal_values) + 1)
 
@@ -114,30 +114,32 @@ def plot_goal_values(goal_values, alphas, epsilons, gamma):
     plt.title(f"Badanie, gamma={gamma}")
     plt.xlabel("Numer generacji")
     plt.ylabel("Wartości funkcji celu")
-
+    #plt.savefig(f'generacja{i}.png')
+    #plt.clf()
     # Display the plot
-    plt.show()
+    #plt.show()
+    #
+    # plt.plot(x, alphas)
+    # # Set the plot title and labels
+    # plt.title(f"Wartości alpha")
+    # plt.xlabel("Numer generacji")
+    # plt.ylabel("alpha")
+    # plt.show()
+    #
+    # plt.plot(x, epsilons)
+    # # Set the plot title and labels
+    # plt.title(f"Wartości epsilon")
+    # plt.xlabel("Numer generacji")
+    # plt.ylabel("epsilon")
+    # plt.show()
 
-    plt.plot(x, alphas)
-    # Set the plot title and labels
-    plt.title(f"Wartości alpha")
-    plt.xlabel("Numer generacji")
-    plt.ylabel("alpha")
-    plt.show()
-
-    plt.plot(x, epsilons)
-    # Set the plot title and labels
-    plt.title(f"Wartości epsilon")
-    plt.xlabel("Numer generacji")
-    plt.ylabel("epsilon")
-    plt.show()
 
 ######################################################
 # SETTINGS
 visualize = True
-save_q_table = True
+save_q_table = False
 use_q_table = True  # use trained q table
-env_number = 5
+env_number = 10
 os.makedirs(f"Q_Tables/{env_number}", exist_ok=True) # Create save directory
 save_file_path = f"Q_Tables/{env_number}/q_table.txt" # where  to save q table
 trained_q_table_path = f"Q_Tables/{env_number}/q_table.txt" # trained q table path
@@ -159,12 +161,12 @@ max_combinations = env.get_max_combinations(env)
 alpha = 1.0  # Learning rate
 gamma = 0.7  # Discount factor
 epsilon = 0.0  # Exploration rate, if epsilon 0 only values from q table, if 1 only exploration
-max_iterations = 20000  # number of whole training epochs, one epoch is whole environment cycle
+max_iterations = 1  # number of whole training epochs, one epoch is whole environment cycle
 
 # Changing hiperparametersa
-alpha_rate_of_decay = 0.01
+alpha_rate_of_decay = 0.002
 alpha_decay_time = 200
-epsilon_rate_of_decay = 0.005
+epsilon_rate_of_decay = 0.002
 epsilon_decay_time = 200
 alphas = []
 epsilons = []
@@ -250,6 +252,6 @@ while iterations < max_iterations and not env.is_finished(env):
         time.sleep(0.1)
         env.visualize(env)
 
-plot_goal_values(scores, alphas, epsilons, gamma)
+#plot_goal_values(scores, alphas, epsilons, gamma, i+1)
 #print(q_table)
 
