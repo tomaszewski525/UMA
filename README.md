@@ -1,4 +1,4 @@
-This is a project made for subject called machine learning on Warsaw Polytechnic.
+###This is a project made for subject called machine learning on Warsaw Polytechnic.
 
 How to run project?
 
